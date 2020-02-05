@@ -9,8 +9,7 @@ class TransactionController extends Controller
     public function process(Request $request) {
         $checkout = $request->json()->get('checkout');
         $tendered = $request->json()->get('tendered');
-
-        $remaining = $checkout;
+        
         $change = [
             "hundreds" => 0,
             "fifties" => 0,
@@ -27,35 +26,47 @@ class TransactionController extends Controller
         if($tendered < $checkout) {
             return response('Insufficient cash tendered to purchase item.', 400);
         }
+        else if($tendered == null || $checkout == null) {
+            return response('A null amount has been provided, please fix it before posting again.', 400);
+        }
 
-        while($remaining > 0.00){
-            if($remaining > 100 ) {
+        while($tendered > 0.009){
+            if($tendered >= 100 ) {
+                $tendered -= 100;
                 $change["hundreds"] += 1;
-                dd($change);
-            } else if($remaining > 50) {
-
-            } else if($remaining > 20) {
-
-            } else if($remaining > 10) {
-
-            } else if($remaining > 5) {
-
-            } else if($remaining > 1) {
-
-            } else if($remaining > 0.25) {
-
-            } else if($remaining > 0.10) {
-
-            } else if($remaining > 0.05) {
-
-            } else if($remaining > 0.01) {
-
-            } else {
-                return response('Incorrect amount of cash.', 400);
+            } else if($tendered >= 50) {
+                $tendered -= 50;
+                $change["fifties"] += 1;
+            } else if($tendered >= 20) {
+                $tendered -= 20;
+                $change["twenties"] += 1;
+            } else if($tendered >= 10) {
+                $tendered -= 10;
+                $change["tens"] += 1;
+            } else if($tendered >= 5) {
+                $tendered -= 5;
+                $change["fives"] += 1;
+            } else if($tendered >= 1) {
+                $tendered -= 1;
+                $change["ones"] += 1;
+            } else if($tendered >= 0.25) {
+                $tendered -= 0.25;
+                $change["quarters"] += 1;
+            } else if($tendered >= 0.10) {
+                $tendered -= 0.1;
+                $change["dimes"] += 1;
+            } else if($tendered >= 0.05) {
+                $tendered -= 0.05;
+                $change["nickels"] += 1;
+            } else if($tendered >= 0.01) {
+                $tendered -= 0.01;
+                $change["pennies"] += 1;
             }
         }
 
-        if($remaining+$checkout == $checkout) {
+        $tendered = number_format($tendered, 2, '.', '');
+
+        if($tendered == 0) {
             return response($change, 200);
 
         } else {
