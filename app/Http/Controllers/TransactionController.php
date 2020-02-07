@@ -23,12 +23,15 @@ class TransactionController extends Controller
             "pennies" => 0
         ];
 
-        if($tendered < $checkout) {
+//      Add validation for data type to be double
+        else if($tendered < $checkout) {
             return response('Insufficient cash tendered to purchase item.', 400);
         }
         else if($tendered == null || $checkout == null) {
             return response('A null amount has been provided, please fix it before posting again.', 400);
         }
+
+        $tendered = $tendered - $checkout;
 
         while($tendered > 0.009){
             if($tendered >= 100 ) {
